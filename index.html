@@ -1,103 +1,98 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>借金手帳</title>
-<meta name="theme-color" content="#243746">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="借金手帳">
 <style>
   :root{
-    --paper:#F4F1E9;
-    --card:#FFFFFF;
-    --ink:#20303F;
-    --ink-soft:#5C6B78;
-    --line:#E4DECF;
-    --kashi:#B4632E;      /* 貸付 = 増える（暖色・鉄錆） */
-    --kashi-bg:#F6E7D8;
-    --hensai:#2E8577;     /* 返済 = 減る（藍緑） */
-    --hensai-bg:#DCEBE6;
-    --hero1:#243746;
-    --hero2:#38566B;
-    --gold:#C99A3F;
-    --shadow:0 6px 20px rgba(32,48,63,.08);
-    --radius:18px;
+    --paper:#F4F1E9;--card:#FFFFFF;--ink:#20303F;--ink-soft:#5C6B78;--line:#E4DECF;
+    --kashi:#B4632E;--kashi-bg:#F6E7D8;--hensai:#2E8577;--hensai-bg:#DCEBE6;
+    --hero1:#243746;--hero2:#38566B;--gold:#C99A3F;
+    --shadow:0 6px 20px rgba(32,48,63,.08);--radius:18px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0}
-  body{
-    background:var(--paper);
-    color:var(--ink);
+  body{background:var(--paper);color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased;
-    padding-bottom:96px;
-    max-width:520px;margin:0 auto;
-    min-height:100vh;
-  }
+    -webkit-font-smoothing:antialiased;padding-bottom:96px;max-width:520px;margin:0 auto;min-height:100vh}
   .wrap{padding:16px 16px 0}
+  .page{display:none}.page.on{display:block}
 
-  /* ---- header ---- */
-  .masthead{display:flex;align-items:baseline;justify-content:space-between;padding:6px 2px 14px}
+  .masthead{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 14px}
   .masthead h1{font-size:19px;letter-spacing:.14em;margin:0;font-weight:700}
   .masthead .tag{font-size:11px;color:var(--ink-soft);letter-spacing:.08em}
 
-  /* ---- hero balance ---- */
-  .hero{
-    background:linear-gradient(135deg,var(--hero1),var(--hero2));
-    color:#fff;border-radius:var(--radius);padding:22px 22px 20px;
-    box-shadow:var(--shadow);position:relative;overflow:hidden;
-  }
+  .hero{background:linear-gradient(135deg,var(--hero1),var(--hero2));color:#fff;border-radius:var(--radius);
+    padding:22px 22px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
   .hero::after{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;
-    background:radial-gradient(circle,rgba(201,154,63,.35),transparent 70%);}
+    background:radial-gradient(circle,rgba(201,154,63,.35),transparent 70%)}
   .hero .lab{font-size:12px;letter-spacing:.12em;opacity:.8}
-  .hero .bal{font-size:40px;font-weight:800;letter-spacing:.01em;margin:6px 0 2px;font-variant-numeric:tabular-nums;line-height:1.05}
+  .hero .bal{font-size:40px;font-weight:800;margin:6px 0 2px;font-variant-numeric:tabular-nums;line-height:1.05}
   .hero .bal small{font-size:18px;font-weight:600;opacity:.85;margin-left:2px}
   .hero .sub{display:flex;gap:22px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.16)}
   .hero .sub div{flex:1}
   .hero .sub .k{font-size:11px;opacity:.75;letter-spacing:.08em}
   .hero .sub .v{font-size:16px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
   .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
-  .dot.k{background:var(--gold)}
-  .dot.h{background:#7FD8C6}
+  .dot.k{background:var(--gold)}.dot.h{background:#7FD8C6}
 
-  /* ---- filter chips ---- */
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px}
+  .card .ttl{font-size:12px;letter-spacing:.1em;color:var(--ink-soft);font-weight:700;margin-bottom:2px}
+  .sect-sp{margin-top:14px}
+
   .chips{display:flex;gap:8px;margin:18px 2px 10px}
-  .chip{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);
-    font-size:13px;padding:7px 15px;border-radius:999px;font-weight:600;cursor:pointer}
+  .chip{border:1px solid var(--line);background:var(--card);color:var(--ink-soft);font-size:13px;padding:7px 15px;
+    border-radius:999px;font-weight:600;cursor:pointer}
   .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
   .count{margin-left:auto;font-size:12px;color:var(--ink-soft);align-self:center}
 
-  /* ---- ledger list ---- */
   .list{display:flex;flex-direction:column;gap:9px;padding-bottom:8px}
   .row{background:var(--card);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow);
     display:flex;align-items:center;gap:12px;cursor:pointer;border:1px solid transparent;transition:border-color .15s}
   .row:active{border-color:var(--line)}
-  .badge{flex:none;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
-    font-size:12px;font-weight:800;letter-spacing:.02em}
-  .badge.k{background:var(--kashi-bg);color:var(--kashi)}
-  .badge.h{background:var(--hensai-bg);color:var(--hensai)}
+  .badge{flex:none;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+  .badge.k{background:var(--kashi-bg);color:var(--kashi)}.badge.h{background:var(--hensai-bg);color:var(--hensai)}
   .row .mid{flex:1;min-width:0}
   .row .memo{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .row .memo.none{color:var(--ink-soft);font-weight:500}
   .row .date{font-size:11.5px;color:var(--ink-soft);margin-top:2px}
   .row .right{text-align:right;flex:none}
   .row .amt{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
-  .row .amt.k{color:var(--kashi)}
-  .row .amt.h{color:var(--hensai)}
+  .row .amt.k{color:var(--kashi)}.row .amt.h{color:var(--hensai)}
   .row .bal{font-size:11px;color:var(--ink-soft);margin-top:2px;font-variant-numeric:tabular-nums}
   .empty{text-align:center;color:var(--ink-soft);font-size:14px;padding:50px 20px;line-height:1.7}
 
-  /* ---- bottom tab ---- */
-  .tabbar{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;
-    background:rgba(255,255,255,.92);backdrop-filter:blur(10px);
-    border-top:1px solid var(--line);display:flex;padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:40}
-  .tab{flex:1;border:none;background:none;padding:8px;font-size:11px;font-weight:700;letter-spacing:.06em;
-    color:var(--ink-soft);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+  /* plan */
+  .rate-row{display:flex;align-items:center;gap:14px;margin-top:10px}
+  .rate-row input[type=range]{flex:1;accent-color:var(--kashi)}
+  .rate-val{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;min-width:78px;text-align:right}
+  .rate-val small{font-size:14px;font-weight:600;color:var(--ink-soft)}
+  .interest-line{display:flex;gap:12px;margin-top:14px}
+  .interest-line .box{flex:1;background:var(--paper);border-radius:12px;padding:11px 12px}
+  .interest-line .box .k{font-size:11px;color:var(--ink-soft)}
+  .interest-line .box .v{font-size:17px;font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums;color:var(--kashi)}
+  .seg{display:flex;background:var(--paper);border-radius:12px;padding:4px;gap:4px;margin:14px 0 4px}
+  .seg button{flex:1;border:none;background:none;padding:11px;border-radius:9px;font-size:13.5px;font-weight:700;color:var(--ink-soft);cursor:pointer}
+  .seg button.on{background:var(--ink);color:#fff}
+  .plan-input{display:flex;align-items:center;background:var(--paper);border-radius:12px;padding:2px 14px;margin-top:12px}
+  .plan-input span{font-size:15px;font-weight:700;color:var(--ink-soft)}
+  .plan-input input{border:none;background:none;font-size:22px;font-weight:800;width:100%;padding:12px 8px;color:var(--ink);
+    font-variant-numeric:tabular-nums;outline:none;text-align:right;-webkit-appearance:none}
+  .result{margin-top:16px;background:linear-gradient(135deg,var(--hensai),#256e62);color:#fff;border-radius:14px;padding:16px 18px}
+  .result .big{font-size:15px;opacity:.85}
+  .result .big b{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+  .result .g{display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.2)}
+  .result .g div{flex:1}.result .g .k{font-size:11px;opacity:.8}.result .g .v{font-size:15px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+  .warn{margin-top:16px;background:var(--kashi-bg);color:var(--kashi);border-radius:14px;padding:14px 16px;font-size:13.5px;font-weight:600;line-height:1.6}
+  .sched{margin-top:14px;max-height:280px;overflow-y:auto;border-radius:12px;border:1px solid var(--line)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+  th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line)}
+  th{position:sticky;top:0;background:var(--card);color:var(--ink-soft);font-weight:700;font-size:11px;letter-spacing:.04em}
+  td:first-child,th:first-child{text-align:left;color:var(--ink-soft)}
+  tr:last-child td{border-bottom:none}
+
+  .tabbar{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:rgba(255,255,255,.92);
+    backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;padding:8px 10px calc(8px + env(safe-area-inset-bottom));z-index:40}
+  .tab{flex:1;border:none;background:none;padding:8px;font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--ink-soft);
+    display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
   .tab svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8}
   .tab.on{color:var(--ink)}
   .tab.add{color:#fff}
@@ -105,47 +100,45 @@
     margin-top:-22px;box-shadow:0 6px 16px rgba(180,99,46,.4)}
   .tab.add .ic svg{width:26px;height:26px;stroke-width:2.4}
 
-  /* ---- input sheet ---- */
   .sheet-bg{position:fixed;inset:0;background:rgba(20,30,40,.42);opacity:0;pointer-events:none;transition:.22s;z-index:50}
   .sheet-bg.show{opacity:1;pointer-events:auto}
-  .sheet{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:var(--paper);
-    border-radius:22px 22px 0 0;padding:8px 18px calc(24px + env(safe-area-inset-bottom));
-    transform:translateY(100%);transition:transform .26s cubic-bezier(.3,.8,.3,1);z-index:51;max-height:92vh;overflow-y:auto}
+  .sheet{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:var(--paper);border-radius:22px 22px 0 0;
+    padding:8px 18px calc(24px + env(safe-area-inset-bottom));transform:translateY(100%);
+    transition:transform .26s cubic-bezier(.3,.8,.3,1);z-index:51;max-height:92vh;overflow-y:auto}
   .sheet.show{transform:translateY(0)}
   .grab{width:40px;height:4px;background:var(--line);border-radius:2px;margin:8px auto 14px}
   .sheet h2{font-size:16px;margin:0 0 18px;letter-spacing:.06em;text-align:center}
-  .seg{display:flex;background:var(--card);border-radius:14px;padding:5px;gap:5px;box-shadow:var(--shadow);margin-bottom:18px}
-  .seg button{flex:1;border:none;background:none;padding:13px;border-radius:10px;font-size:15px;font-weight:700;color:var(--ink-soft);cursor:pointer;transition:.15s}
-  .seg button.on-k{background:var(--kashi);color:#fff}
-  .seg button.on-h{background:var(--hensai);color:#fff}
+  .segbig{display:flex;background:var(--card);border-radius:14px;padding:5px;gap:5px;box-shadow:var(--shadow);margin-bottom:18px}
+  .segbig button{flex:1;border:none;background:none;padding:13px;border-radius:10px;font-size:15px;font-weight:700;color:var(--ink-soft);cursor:pointer;transition:.15s}
+  .segbig button.on-k{background:var(--kashi);color:#fff}.segbig button.on-h{background:var(--hensai);color:#fff}
   .field{margin-bottom:16px}
   .field label{display:block;font-size:12px;color:var(--ink-soft);letter-spacing:.06em;margin:0 4px 7px;font-weight:600}
   .amt-input{display:flex;align-items:center;background:var(--card);border-radius:14px;padding:4px 18px;box-shadow:var(--shadow)}
   .amt-input span{font-size:22px;font-weight:700;color:var(--ink-soft);margin-right:4px}
   .amt-input input{border:none;background:none;font-size:30px;font-weight:800;width:100%;padding:14px 0;color:var(--ink);
     font-variant-numeric:tabular-nums;outline:none;-webkit-appearance:none}
-  .field input.txt,.field input.dt{width:100%;border:none;background:var(--card);border-radius:14px;padding:15px 16px;
-    font-size:16px;box-shadow:var(--shadow);color:var(--ink);outline:none;font-family:inherit}
-  .save{width:100%;border:none;border-radius:15px;padding:17px;font-size:16px;font-weight:800;letter-spacing:.08em;
-    color:#fff;background:var(--ink);cursor:pointer;margin-top:6px;box-shadow:var(--shadow)}
+  .field input.txt,.field input.dt{width:100%;border:none;background:var(--card);border-radius:14px;padding:15px 16px;font-size:16px;
+    box-shadow:var(--shadow);color:var(--ink);outline:none;font-family:inherit}
+  .save{width:100%;border:none;border-radius:15px;padding:17px;font-size:16px;font-weight:800;letter-spacing:.08em;color:#fff;
+    background:var(--ink);cursor:pointer;margin-top:6px;box-shadow:var(--shadow)}
   .save:disabled{opacity:.4}
   .del{width:100%;border:none;background:none;color:var(--kashi);font-size:14px;font-weight:700;padding:16px;margin-top:4px;cursor:pointer}
+  textarea.bk{width:100%;border:none;background:var(--card);border-radius:14px;padding:14px;font-size:12px;box-shadow:var(--shadow);
+    color:var(--ink);outline:none;font-family:monospace;resize:none}
+  .hint{font-size:11.5px;color:var(--ink-soft);line-height:1.6;margin:0 4px 10px}
 
-  /* toast */
-  .toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%) translateY(20px);
-    background:var(--ink);color:#fff;padding:12px 22px;border-radius:999px;font-size:14px;font-weight:600;
-    opacity:0;pointer-events:none;transition:.25s;z-index:60;box-shadow:var(--shadow)}
+  .toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;
+    padding:12px 22px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:60;box-shadow:var(--shadow)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  svg.chart{width:100%;display:block;overflow:visible}
 </style>
-</head>
-<body>
 
-<div class="wrap">
+<!-- ============ HOME ============ -->
+<div class="page on" id="p-home"><div class="wrap">
   <div class="masthead">
     <h1>借金手帳</h1>
     <span class="tag" id="asof"></span>
   </div>
-
   <div class="hero">
     <div class="lab">現在の残高（貸付 − 返済）</div>
     <div class="bal"><span id="balance">0</span><small>円</small></div>
@@ -155,99 +148,145 @@
     </div>
   </div>
 
+  <div class="card sect-sp">
+    <div class="ttl">残高の推移</div>
+    <div id="histChart"></div>
+  </div>
+
   <div class="chips">
     <button class="chip on" data-f="all">すべて</button>
     <button class="chip" data-f="貸付">貸付</button>
     <button class="chip" data-f="返済">返済</button>
     <span class="count" id="count"></span>
   </div>
-
   <div class="list" id="list"></div>
-</div>
+</div></div>
 
+<!-- ============ PLAN ============ -->
+<div class="page" id="p-plan"><div class="wrap">
+  <div class="masthead"><h1>返済計画</h1><span class="tag" id="plan-bal"></span></div>
+
+  <div class="card">
+    <div class="ttl">金利（年利）</div>
+    <div class="rate-row">
+      <input type="range" id="rate" min="0" max="18" step="0.5" value="0">
+      <div class="rate-val"><span id="rate-num">0</span><small> %</small></div>
+    </div>
+    <div class="interest-line">
+      <div class="box"><div class="k">1ヶ月の利息</div><div class="v" id="int-month">0 円</div></div>
+      <div class="box"><div class="k">1年間の利息</div><div class="v" id="int-year">0 円</div></div>
+    </div>
+  </div>
+
+  <div class="card sect-sp">
+    <div class="ttl">シミュレーション方法</div>
+    <div class="seg" id="mode">
+      <button data-m="pay" class="on">毎月の返済額から</button>
+      <button data-m="term">返済期間から</button>
+    </div>
+    <div id="in-pay-wrap" class="plan-input"><span>¥</span><input id="in-pay" type="tel" inputmode="numeric" placeholder="毎月いくら返す？"></div>
+    <div id="in-term-wrap" class="plan-input" style="display:none"><input id="in-term" type="tel" inputmode="numeric" placeholder="何ヶ月で返す？" style="text-align:right"><span>ヶ月</span></div>
+
+    <div id="plan-result"></div>
+  </div>
+
+  <div class="card sect-sp" id="plan-chart-card" style="display:none">
+    <div class="ttl">残高が減っていくイメージ</div>
+    <div id="planChart"></div>
+  </div>
+
+  <div class="card sect-sp" id="plan-sched-card" style="display:none">
+    <div class="ttl">返済スケジュール</div>
+    <div class="sched"><table id="sched"></table></div>
+  </div>
+</div></div>
+
+<!-- ============ tab bar ============ -->
 <div class="tabbar">
-  <button class="tab on" id="tab-list">
-    <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" stroke-linecap="round"/></svg>
-    一覧
-  </button>
-  <button class="tab add" id="tab-add">
-    <span class="ic"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg></span>
-  </button>
-  <button class="tab" id="tab-info">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01" stroke-linecap="round"/></svg>
-    使い方
-  </button>
+  <button class="tab on" data-p="p-home">
+    <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" stroke-linecap="round"/></svg>一覧</button>
+  <button class="tab add" id="tab-add"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg></span></button>
+  <button class="tab" data-p="p-plan">
+    <svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 16v-4M12 16V8M16 16v-6" stroke-linecap="round" stroke-linejoin="round"/></svg>返済計画</button>
+  <button class="tab" id="tab-backup">
+    <svg viewBox="0 0 24 24"><path d="M12 3v12M12 15l-4-4M12 15l4-4M5 19h14" stroke-linecap="round" stroke-linejoin="round"/></svg>引き継ぎ</button>
 </div>
 
-<!-- input sheet -->
+<!-- ============ input sheet ============ -->
 <div class="sheet-bg" id="bg"></div>
 <div class="sheet" id="sheet">
   <div class="grab"></div>
   <h2 id="sheet-title">記録する</h2>
-  <div class="seg" id="seg">
+  <div class="segbig" id="seg">
     <button data-t="貸付" class="on-k">貸付（貸した）</button>
     <button data-t="返済">返済（返ってきた）</button>
   </div>
-  <div class="field">
-    <label>金額</label>
-    <div class="amt-input"><span>¥</span><input id="in-amt" type="tel" inputmode="numeric" placeholder="0"></div>
-  </div>
-  <div class="field">
-    <label>内容（任意）</label>
-    <input class="txt" id="in-memo" type="text" placeholder="例：ガソリン、保育園…">
-  </div>
-  <div class="field">
-    <label>日付</label>
-    <input class="dt" id="in-date" type="date">
-  </div>
+  <div class="field"><label>金額</label>
+    <div class="amt-input"><span>¥</span><input id="in-amt" type="tel" inputmode="numeric" placeholder="0"></div></div>
+  <div class="field"><label>内容（任意）</label>
+    <input class="txt" id="in-memo" type="text" placeholder="例：ガソリン、保育園…"></div>
+  <div class="field"><label>日付</label><input class="dt" id="in-date" type="date"></div>
   <button class="save" id="save">保存する</button>
   <button class="del" id="del" style="display:none">この記録を削除</button>
+</div>
+
+<!-- ============ backup sheet ============ -->
+<div class="sheet-bg" id="bg2"></div>
+<div class="sheet" id="sheet2">
+  <div class="grab"></div>
+  <h2>バックアップ・引き継ぎ</h2>
+  <p style="font-size:13px;color:var(--ink-soft);line-height:1.7;margin:0 0 18px">
+    家計簿アプリと同じで、バックアップ用の <b>.json ファイル</b>を書き出して保存します。スマホを変えたら、そのファイルを読み込むだけで全データが戻ります。</p>
+  <div class="field"><label>① バックアップファイルを書き出す</label>
+    <p class="hint">タップすると <b>shakkin-backup-日付.json</b> が保存されます。Googleドライブなどに置いておくと安心です。</p>
+    <button class="save" id="expfile" style="background:var(--hensai)">ファイルを書き出す</button></div>
+  <div class="field" style="margin-top:24px"><label>② バックアップファイルから復元する</label>
+    <p class="hint">前に書き出した .json ファイルを選ぶと、その内容に置き換わります。</p>
+    <input id="impfile" type="file" accept="application/json,.json" style="display:none">
+    <button class="save" id="pickfile">ファイルを選んで復元</button>
+    <p class="hint" style="margin-top:12px">※ 復元すると今このスマホの記録は上書きされます。</p></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const KEY="shakkin:entries";
-const yen=n=>n.toLocaleString("ja-JP");
-
-/* storage: 端末のlocalStorageに永続保存 */
+const KEY="shakkin:entries", PKEY="shakkin:plan";
+const yen=n=>Math.round(n).toLocaleString("ja-JP");
 const store={
-  get(){
-    try{ const v=localStorage.getItem(KEY);return v?JSON.parse(v):null; }catch(e){}
+  async get(k){
+    try{ if(window.storage){const r=await window.storage.get(k,false);return r?JSON.parse(r.value):null;} }catch(e){}
+    try{ const v=localStorage.getItem(k);return v?JSON.parse(v):null; }catch(e){}
     return null;
   },
-  set(data){
-    try{ localStorage.setItem(KEY,JSON.stringify(data)); }catch(e){}
+  async set(k,data){
+    const s=JSON.stringify(data);
+    try{ if(window.storage){await window.storage.set(k,s,false);return;} }catch(e){}
+    try{ localStorage.setItem(k,s); }catch(e){}
   }
 };
+/* seed は空にしてある。実データは端末の localStorage と
+   バックアップ(.json) で持つ。このリポジトリは公開されており、
+   ここに書いた内容は誰でも読めるため（2026-08-13）。 */
+const seed=[];
 
-const seed=[
- ["貸付",240000,""],["貸付",12000,""],["貸付",18000,""],["貸付",23500,""],["貸付",8000,""],
- ["貸付",18700,""],["貸付",40000,"AirPods"],["貸付",10000,""],["貸付",10000,"貸付"],["貸付",10000,"ガソリン"],
- ["貸付",10000,"アウトレット"],["貸付",8000,"買い物"],["貸付",41930,"買い物"],["貸付",26000,"シール"],["貸付",10000,"コストコ"],
- ["貸付",3300,"買い物"],["貸付",38000,"よく分からない飲み"],["貸付",10000,"子供服"],["貸付",5000,"習い事"],["貸付",110000,"貸付"],
- ["貸付",37000,"ディズニー買い物"],["貸付",20000,"貸付"],["貸付",17000,"サメ"],["貸付",5500,"いちこ"],["貸付",24000,"水槽"],
- ["貸付",82000,"保育園"],["貸付",18000,"ニトリドンキ"],["返済",40000,"返済"],["貸付",35000,"貸付"],["貸付",10000,"ガソリン"],
- ["貸付",5479,"カバン"],["貸付",7495,"おもちゃ"],["貸付",34800,"エース"],["貸付",30070,"グランピング"],["貸付",27000,"貸付"],
- ["貸付",7000,"ダンス会費"],["返済",40000,"返済"],["貸付",111576,"ベビーカー"],["貸付",150000,"貸付"],["返済",50000,"返済"],
- ["貸付",9000,"買い物"],["貸付",27960,"税金"],["貸付",7000,"服代"],["貸付",27000,"シール"],["貸付",10000,"買い物"],
- ["返済",40000,"返済6月"],["貸付",2000,"貸付"],["貸付",120000,"貸付"],["貸付",10000,"買い物"],["貸付",10000,"買い物"],
- ["返済",300000,"返済"],["貸付",15532,"買い物"],["貸付",15000,"貸付"],["貸付",9000,"貸付"],["返済",40000,"返済7月"],
- ["貸付",82000,"車"],["貸付",15000,"貸付"]
-].map((e,i)=>({id:"s"+i,type:e[0],amount:e[1],memo:e[2],date:""}));
+let entries=[], filter="all", editId=null, formType="貸付";
+let plan={rate:0, mode:"pay", pay:"", term:""};
 
-let entries=[];
-let filter="all";
-let editId=null;
-let formType="貸付";
-
-function boot(){
-  const saved=store.get();
-  entries = (saved && saved.length!==undefined) ? saved : seed.slice();
-  if(!saved) store.set(entries);
+async function boot(){
+  const saved=await store.get(KEY);
+  entries=(saved&&saved.length!==undefined)?saved:seed.slice();
+  if(!saved) await store.set(KEY,entries);
+  const sp=await store.get(PKEY); if(sp) plan=Object.assign(plan,sp);
   document.getElementById("asof").textContent=new Date().toLocaleDateString("ja-JP",{month:"long",day:"numeric"})+" 現在";
-  render();
+  // restore plan UI
+  document.getElementById("rate").value=plan.rate;
+  document.getElementById("in-pay").value=plan.pay?yen(plan.pay):"";
+  document.getElementById("in-term").value=plan.term||"";
+  setMode(plan.mode,true);
+  render(); renderPlan();
 }
+
+function currentBalance(){ let b=0; entries.forEach(e=>b+= e.type==="返済"?-e.amount:e.amount); return b; }
 
 function render(){
   let sumK=0,sumH=0;
@@ -256,141 +295,220 @@ function render(){
   document.getElementById("balance").textContent=yen(bal);
   document.getElementById("sumK").textContent=yen(sumK)+" 円";
   document.getElementById("sumH").textContent=yen(sumH)+" 円";
-
-  /* running balance per entry (insertion order) */
-  let run=0; const bals={};
-  entries.forEach(e=>{ run+= e.type==="返済"? -e.amount : e.amount; bals[e.id]=run; });
+  let run=0; const bals={},series=[0];
+  entries.forEach(e=>{ run+= e.type==="返済"?-e.amount:e.amount; bals[e.id]=run; series.push(run); });
+  document.getElementById("histChart").innerHTML=areaChart(series,"#38566B","rgba(56,86,107,.14)");
 
   const view=entries.filter(e=>filter==="all"||e.type===filter).slice().reverse();
   document.getElementById("count").textContent=view.length+" 件";
   const list=document.getElementById("list");
-
   if(!view.length){ list.innerHTML='<div class="empty">まだ記録がありません。<br>下の＋ボタンから追加できます。</div>'; return; }
-
   list.innerHTML=view.map(e=>{
-    const k=e.type==="貸付";
-    const memo=e.memo?e.memo:'<span class="none">（内容なし）</span>';
-    const dt=e.date?fmtDate(e.date):"日付なし";
-    return `<div class="row" data-id="${e.id}">
-      <div class="badge ${k?'k':'h'}">${e.type}</div>
-      <div class="mid">
-        <div class="memo">${memo}</div>
-        <div class="date">${dt}</div>
-      </div>
-      <div class="right">
-        <div class="amt ${k?'k':'h'}">${k?'+':'−'}${yen(e.amount)}</div>
-        <div class="bal">残高 ${yen(bals[e.id])}</div>
-      </div>
-    </div>`;
+    const k=e.type==="貸付", memo=e.memo?e.memo:'<span class="none">（内容なし）</span>', dt=e.date?fmtDate(e.date):"日付なし";
+    return `<div class="row" data-id="${e.id}"><div class="badge ${k?'k':'h'}">${e.type}</div>
+      <div class="mid"><div class="memo">${memo}</div><div class="date">${dt}</div></div>
+      <div class="right"><div class="amt ${k?'k':'h'}">${k?'+':'−'}${yen(e.amount)}</div>
+      <div class="bal">残高 ${yen(bals[e.id])}</div></div></div>`;
   }).join("");
-
   list.querySelectorAll(".row").forEach(r=>r.onclick=()=>openEdit(r.dataset.id));
 }
+function fmtDate(iso){const d=new Date(iso+"T00:00:00");return isNaN(d)?iso:(d.getMonth()+1)+"月"+d.getDate()+"日";}
 
-function fmtDate(iso){
-  const d=new Date(iso+"T00:00:00");
-  if(isNaN(d)) return iso;
-  return (d.getMonth()+1)+"月"+d.getDate()+"日";
+/* ---------- SVG charts ---------- */
+function areaChart(vals,stroke,fill){
+  const W=460,H=140,pad=6;
+  if(vals.length<2) return '<div style="color:var(--ink-soft);font-size:13px;padding:30px 0;text-align:center">データが増えるとグラフが表示されます</div>';
+  const max=Math.max(...vals,1),min=Math.min(...vals,0),span=(max-min)||1;
+  const x=i=>pad+i*(W-2*pad)/(vals.length-1);
+  const y=v=>pad+(H-2*pad)*(1-(v-min)/span);
+  let d="M"+x(0)+" "+y(vals[0]);
+  for(let i=1;i<vals.length;i++) d+=" L"+x(i)+" "+y(vals[i]);
+  const area=d+" L"+x(vals.length-1)+" "+(H-pad)+" L"+x(0)+" "+(H-pad)+" Z";
+  return `<svg class="chart" viewBox="0 0 ${W} ${H+22}">
+    <path d="${area}" fill="${fill}"/><path d="${d}" fill="none" stroke="${stroke}" stroke-width="2.4" stroke-linejoin="round"/>
+    <circle cx="${x(vals.length-1)}" cy="${y(vals[vals.length-1])}" r="4" fill="${stroke}"/>
+    <text x="${x(0)}" y="${H+16}" font-size="11" fill="#5C6B78">${yen(vals[0])}</text>
+    <text x="${x(vals.length-1)}" y="${H+16}" font-size="11" fill="#5C6B78" text-anchor="end">${yen(vals[vals.length-1])}</text>
+  </svg>`;
 }
 
-/* ---- filters ---- */
+/* ---------- plan ---------- */
+function setMode(m,silent){
+  plan.mode=m;
+  document.querySelectorAll("#mode button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));
+  document.getElementById("in-pay-wrap").style.display=m==="pay"?"flex":"none";
+  document.getElementById("in-term-wrap").style.display=m==="term"?"flex":"none";
+  if(!silent) savePlan();
+}
+document.querySelectorAll("#mode button").forEach(b=>b.onclick=()=>{setMode(b.dataset.m);renderPlan();});
+const rate=document.getElementById("rate");
+rate.oninput=()=>{plan.rate=parseFloat(rate.value);savePlan();renderPlan();};
+const inPay=document.getElementById("in-pay");
+inPay.addEventListener("input",()=>{const r=inPay.value.replace(/[^\d]/g,"");inPay.value=r?Number(r).toLocaleString("ja-JP"):"";plan.pay=r?+r:"";savePlan();renderPlan();});
+const inTerm=document.getElementById("in-term");
+inTerm.addEventListener("input",()=>{const r=inTerm.value.replace(/[^\d]/g,"");inTerm.value=r;plan.term=r?+r:"";savePlan();renderPlan();});
+let saveT; function savePlan(){clearTimeout(saveT);saveT=setTimeout(()=>store.set(PKEY,plan),300);}
+
+function simulate(P,annualPct,monthly){
+  const i=annualPct/100/12; let bal=P,rows=[],totalInt=0,m=0;
+  while(bal>0.5 && m<1200){
+    m++; const interest=bal*i; let principal=monthly-interest;
+    if(principal<=0) return {impossible:true};
+    let pay=monthly;
+    if(principal>bal){ principal=bal; pay=bal+interest; }
+    bal-=principal; totalInt+=interest;
+    rows.push({m,pay,interest,bal:Math.max(0,bal)});
+  }
+  if(bal>0.5) return {impossible:true};
+  return {months:m,totalInt,totalPaid:rows.reduce((s,r)=>s+r.pay,0),rows};
+}
+function paymentForTerm(P,annualPct,N){
+  const i=annualPct/100/12;
+  if(i===0) return P/N;
+  return P*i/(1-Math.pow(1+i,-N));
+}
+function addMonths(n){const d=new Date();d.setMonth(d.getMonth()+n);return d.getFullYear()+"年"+(d.getMonth()+1)+"月";}
+
+function renderPlan(){
+  const P=currentBalance();
+  document.getElementById("plan-bal").textContent="残高 "+yen(P)+" 円";
+  const rr=plan.rate;
+  document.getElementById("rate-num").textContent=rr;
+  document.getElementById("int-month").textContent=yen(P*rr/100/12)+" 円";
+  document.getElementById("int-year").textContent=yen(P*rr/100)+" 円";
+
+  const resEl=document.getElementById("plan-result");
+  const chartCard=document.getElementById("plan-chart-card");
+  const schedCard=document.getElementById("plan-sched-card");
+
+  let monthly;
+  if(plan.mode==="pay"){ monthly=+plan.pay||0; if(!monthly){ resEl.innerHTML=""; chartCard.style.display=schedCard.style.display="none"; return; } }
+  else { const N=+plan.term||0; if(!N){ resEl.innerHTML=""; chartCard.style.display=schedCard.style.display="none"; return; } monthly=paymentForTerm(P,rr,N); }
+
+  if(P<=0){ resEl.innerHTML='<div class="warn">現在の残高が0円です。返済計画は残高があるときに使えます。</div>'; chartCard.style.display=schedCard.style.display="none"; return; }
+
+  const sim=simulate(P,rr,monthly);
+  if(sim.impossible){
+    resEl.innerHTML='<div class="warn">この毎月の金額では利息に追いつかず、いつまでも完済できません。金額を増やすか、金利を下げてください。</div>';
+    chartCard.style.display=schedCard.style.display="none"; return;
+  }
+  const payLabel=plan.mode==="term"?`毎月 <b>${yen(monthly)}</b> 円`:`<b>${sim.months}</b> ヶ月で完済`;
+  const other=plan.mode==="term"?`${sim.months} ヶ月で完済`:`毎月 ${yen(monthly)} 円`;
+  resEl.innerHTML=`<div class="result">
+    <div class="big">${payLabel}</div>
+    <div class="g">
+      <div><div class="k">完済予定</div><div class="v">${addMonths(sim.months)}</div></div>
+      <div><div class="k">総返済額</div><div class="v">${yen(sim.totalPaid)} 円</div></div>
+      <div><div class="k">うち利息</div><div class="v">${yen(sim.totalInt)} 円</div></div>
+    </div></div>`;
+
+  // chart
+  const series=[P,...sim.rows.map(r=>r.bal)];
+  chartCard.style.display="block";
+  document.getElementById("planChart").innerHTML=areaChart(series,"#2E8577","rgba(46,133,119,.14)");
+
+  // schedule (show every row, but cap huge lists by monthly grouping if >120)
+  schedCard.style.display="block";
+  const rows=sim.rows;
+  let body='<tr><th>回</th><th>返済</th><th>内 利息</th><th>残高</th></tr>';
+  rows.forEach(r=>{ body+=`<tr><td>${r.m}</td><td>${yen(r.pay)}</td><td>${yen(r.interest)}</td><td>${yen(r.bal)}</td></tr>`; });
+  document.getElementById("sched").innerHTML=body;
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll(".tab[data-p]").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("on"));
+  document.getElementById(t.dataset.p).classList.add("on");
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+  t.classList.add("on"); window.scrollTo({top:0});
+});
+
+/* ---------- filters ---------- */
 document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{
   document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
   c.classList.add("on"); filter=c.dataset.f; render();
 });
 
-/* ---- sheet open/close ---- */
-const bg=document.getElementById("bg"), sheet=document.getElementById("sheet");
-function openSheet(){ bg.classList.add("show"); sheet.classList.add("show"); }
-function closeSheet(){ bg.classList.remove("show"); sheet.classList.remove("show"); }
+/* ---------- input sheet ---------- */
+const bg=document.getElementById("bg"),sheet=document.getElementById("sheet");
+function openSheet(){bg.classList.add("show");sheet.classList.add("show");}
+function closeSheet(){bg.classList.remove("show");sheet.classList.remove("show");}
 bg.onclick=closeSheet;
-
-function setType(t){
-  formType=t;
-  const btns=document.querySelectorAll("#seg button");
-  btns.forEach(b=>{b.classList.remove("on-k","on-h");});
-  btns.forEach(b=>{ if(b.dataset.t===t) b.classList.add(t==="貸付"?"on-k":"on-h"); });
-}
+function setType(t){formType=t;document.querySelectorAll("#seg button").forEach(b=>{b.classList.remove("on-k","on-h");if(b.dataset.t===t)b.classList.add(t==="貸付"?"on-k":"on-h");});}
 document.querySelectorAll("#seg button").forEach(b=>b.onclick=()=>setType(b.dataset.t));
-
 function openAdd(){
-  editId=null;
-  document.getElementById("sheet-title").textContent="記録する";
-  document.getElementById("del").style.display="none";
-  document.getElementById("in-amt").value="";
-  document.getElementById("in-memo").value="";
+  editId=null;document.getElementById("sheet-title").textContent="記録する";document.getElementById("del").style.display="none";
+  document.getElementById("in-amt").value="";document.getElementById("in-memo").value="";
   document.getElementById("in-date").value=new Date().toISOString().slice(0,10);
-  setType("貸付");
-  openSheet();
+  setType("貸付");document.getElementById("save").disabled=true;openSheet();
   setTimeout(()=>document.getElementById("in-amt").focus(),300);
 }
 function openEdit(id){
-  const e=entries.find(x=>x.id===id); if(!e)return;
-  editId=id;
-  document.getElementById("sheet-title").textContent="記録を編集";
-  document.getElementById("del").style.display="block";
-  document.getElementById("in-amt").value=e.amount?yen(e.amount):"";
-  document.getElementById("in-memo").value=e.memo||"";
-  document.getElementById("in-date").value=e.date||"";
-  setType(e.type);
-  openSheet();
+  const e=entries.find(x=>x.id===id);if(!e)return;editId=id;
+  document.getElementById("sheet-title").textContent="記録を編集";document.getElementById("del").style.display="block";
+  document.getElementById("in-amt").value=e.amount?yen(e.amount):"";document.getElementById("in-memo").value=e.memo||"";
+  document.getElementById("in-date").value=e.date||"";setType(e.type);document.getElementById("save").disabled=!e.amount;openSheet();
 }
-
-/* amount input: live comma format */
 const amtEl=document.getElementById("in-amt");
-amtEl.addEventListener("input",()=>{
-  const raw=amtEl.value.replace(/[^\d]/g,"");
-  amtEl.value=raw?Number(raw).toLocaleString("ja-JP"):"";
-  document.getElementById("save").disabled=!raw;
-});
-
+amtEl.addEventListener("input",()=>{const raw=amtEl.value.replace(/[^\d]/g,"");amtEl.value=raw?Number(raw).toLocaleString("ja-JP"):"";document.getElementById("save").disabled=!raw;});
 document.getElementById("tab-add").onclick=openAdd;
-document.getElementById("tab-list").onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
-document.getElementById("tab-info").onclick=()=>{
-  toast("下の＋で追加。行をタップで編集/削除");
+document.getElementById("save").onclick=async()=>{
+  const amt=parseInt(document.getElementById("in-amt").value.replace(/[^\d]/g,""),10);if(!amt)return;
+  const memo=document.getElementById("in-memo").value.trim(),date=document.getElementById("in-date").value;
+  if(editId){const e=entries.find(x=>x.id===editId);e.type=formType;e.amount=amt;e.memo=memo;e.date=date;toast("更新しました");}
+  else{entries.push({id:"e"+Date.now(),type:formType,amount:amt,memo,date});toast(formType==="貸付"?"貸付を記録しました":"返済を記録しました");}
+  await store.set(KEY,entries);closeSheet();render();renderPlan();
+};
+document.getElementById("del").onclick=async()=>{
+  if(!editId)return;entries=entries.filter(x=>x.id!==editId);await store.set(KEY,entries);toast("削除しました");closeSheet();render();renderPlan();
 };
 
-/* save */
-document.getElementById("save").onclick=()=>{
-  const amt=parseInt(document.getElementById("in-amt").value.replace(/[^\d]/g,""),10);
-  if(!amt)return;
-  const memo=document.getElementById("in-memo").value.trim();
-  const date=document.getElementById("in-date").value;
-  if(editId){
-    const e=entries.find(x=>x.id===editId);
-    e.type=formType; e.amount=amt; e.memo=memo; e.date=date;
-    toast("更新しました");
-  }else{
-    entries.push({id:"e"+Date.now(),type:formType,amount:amt,memo,date});
-    toast(formType==="貸付"?"貸付を記録しました":"返済を記録しました");
-  }
-  store.set(entries);
-  closeSheet(); render();
+/* ---------- backup ---------- */
+const bg2=document.getElementById("bg2"),sheet2=document.getElementById("sheet2");
+function closeBackup(){bg2.classList.remove("show");sheet2.classList.remove("show");}
+bg2.onclick=closeBackup;
+document.getElementById("tab-backup").onclick=()=>{bg2.classList.add("show");sheet2.classList.add("show");};
+
+/* 書き出し：家計簿アプリと同じ {app,ver,exported,tx:[...]} 形式の .json を保存 */
+document.getElementById("expfile").onclick=()=>{
+  const today=new Date().toISOString().slice(0,10);
+  const data={app:"shakkin",ver:1,exported:today,tx:entries};
+  const blob=new Blob([JSON.stringify(data,null,1)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download="shakkin-backup-"+today+".json";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  toast("バックアップを書き出しました");
 };
 
-/* delete */
-document.getElementById("del").onclick=()=>{
-  if(!editId)return;
-  entries=entries.filter(x=>x.id!==editId);
-  store.set(entries);
-  toast("削除しました");
-  closeSheet(); render();
+/* 読み込み：.json ファイルを選んで復元 */
+const impfile=document.getElementById("impfile");
+document.getElementById("pickfile").onclick=()=>impfile.click();
+impfile.onchange=()=>{
+  const f=impfile.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=async()=>{
+    let data;
+    try{ data=JSON.parse(rd.result); }catch(e){ toast("ファイルを読めませんでした"); return; }
+    const tx=Array.isArray(data)?data:(data&&data.tx);
+    if(!Array.isArray(tx)||!tx.length){ toast("バックアップの中身が正しくありません"); return; }
+    entries=tx.map(t=>({
+      id:t.id||("e"+Date.now()+Math.random().toString(36).slice(2,6)),
+      type:t.type==="返済"?"返済":"貸付",
+      amount:parseInt(t.amount,10)||0,
+      memo:t.memo||"",
+      date:t.date||""
+    }));
+    await store.set(KEY,entries); closeBackup(); render(); renderPlan();
+    toast(entries.length+"件を復元しました");
+  };
+  rd.readAsText(f);
+  impfile.value="";
 };
 
-/* toast */
-let tT;
-function toast(msg){
-  const t=document.getElementById("toast");
-  t.textContent=msg; t.classList.add("show");
-  clearTimeout(tT); tT=setTimeout(()=>t.classList.remove("show"),1800);
-}
+/* ---------- toast ---------- */
+let tT;function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("show"),1800);}
 
 boot();
-
-/* PWA: service worker 登録（オフラインでも起動できるように） */
-if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
-}
 </script>
-</body>
-</html>
