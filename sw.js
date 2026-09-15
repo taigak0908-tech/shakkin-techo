@@ -1,4 +1,4 @@
-const CACHE = "shakkin-v1";
+const CACHE = "shakkin-v2";
 const ASSETS = [
   "./",
   "./index.html",
