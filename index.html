@@ -245,9 +245,7 @@
     <input id="impfile" type="file" accept="application/json,.json" style="display:none">
     <button class="save" id="pickfile">ファイルを選んで復元</button>
     <p class="hint" style="margin-top:12px">※ 復元すると今このスマホの記録は上書きされます。</p></div>
-  <div class="field" style="margin-top:24px"><label>③ 自動バックアップ</label>
-    <p class="hint">記録するたびに Google ドライブへ自動で送ります。状態：<b id="abkStat">未設定</b></p>
-    <button class="save" id="abkSet" style="background:var(--ink-soft)">設定コードを入力</button></div>
+  <p class="hint" id="bkWarn" style="display:none;margin-top:20px;color:#c0392b"></p>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -265,7 +263,6 @@ const store={
     const s=JSON.stringify(data);
     try{ if(window.storage){await window.storage.set(k,s,false);return;} }catch(e){}
     try{ localStorage.setItem(k,s); }catch(e){}
-    if(k===KEY) autoBackupSoon();
   }
 };
 /* seed は空にしてある。実データは端末の localStorage と
@@ -483,6 +480,7 @@ document.getElementById("expfile").onclick=()=>{
   a.href=url;a.download="shakkin-backup-"+today+".json";
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1500);
+  bkMark();
   toast("バックアップを書き出しました");
 };
 
@@ -515,52 +513,18 @@ impfile.onchange=()=>{
 let tT;function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("show"),1800);}
 
 
-/* ---------- 自動バックアップ（2026-09-16 追加） ----------
-   記録を保存するたびに、本人の Google ドライブへ JSON を送る。何も操作しなくてよい。
-   送り先と合言葉はこの端末の localStorage にだけ持つ（公開リポジトリなのでコードに書かない）。 */
-const ABK="shakkin:autobk";
-const abkPad=n=>String(n).padStart(2,"0");
-function abkCfg(){ try{ const c=JSON.parse(localStorage.getItem(ABK)||"null"); return (c&&c.u&&c.t)?c:null; }catch(e){ return null; } }
-function abkSave(c){ try{ localStorage.setItem(ABK, JSON.stringify(c)); }catch(e){} }
-function abkApplyCode(s){
-  try{
-    const b=s.trim().replace(/^.*#autobk=/,"").replace(/-/g,"+").replace(/_/g,"/");
-    const d=JSON.parse(decodeURIComponent(escape(atob(b))));
-    if(!/^https:\/\/script\.google\.com\//.test(d.u)||!d.t) throw new Error("bad");
-    abkSave({u:d.u,t:d.t,lastAt:0,lastCount:0}); return true;
-  }catch(e){ return false; }
+/* ---------- バックアップの催促（2026-09-16 追加） ----------
+   書き出した日を端末に覚えておき、7日を超えたら引き継ぎ画面に出すだけ。外へは何も送らない。 */
+const BKKEY="shakkin:lastbk", BK_DAYS=7;
+function bkMark(){ try{ localStorage.setItem(BKKEY, String(Date.now())); }catch(e){} bkShow(); }
+function bkShow(){
+  const el=document.getElementById("bkWarn"); if(!el) return;
+  let v=0; try{ v=parseInt(localStorage.getItem(BKKEY)||"0",10)||0; }catch(e){}
+  if(!v){ bkMark(); return; }
+  const d=Math.floor((Date.now()-v)/86400000);
+  if(d>=BK_DAYS){ el.style.display=""; el.textContent="前回のバックアップから"+d+"日です。上の「ファイルを書き出す」を押して、ドライブに保存してください。"; }
+  else el.style.display="none";
 }
-function abkShow(){
-  const el=document.getElementById("abkStat"); if(!el) return;
-  const c=abkCfg();
-  if(!c){ el.textContent="未設定"; return; }
-  if(c.hold){ el.textContent="件数が大きく減ったため停止中"; return; }
-  if(!c.lastAt){ el.textContent="設定済み（まだ送っていない）"; return; }
-  const d=new Date(c.lastAt); el.textContent=(d.getMonth()+1)+"/"+d.getDate()+" "+abkPad(d.getHours())+":"+abkPad(d.getMinutes())+" 送信";
-}
-let abkT=null;
-function autoBackupSoon(){ clearTimeout(abkT); abkT=setTimeout(sendAutoBackup,4000); }
-async function sendAutoBackup(){
-  const c=abkCfg(); if(!c) return;
-  if(!entries.length) return;
-  if(c.lastCount>=5 && entries.length<c.lastCount/2){ c.hold=true; abkSave(c); abkShow(); return; }
-  const today=new Date().toISOString().slice(0,10);
-  const data={app:"shakkin",ver:1,exported:today,tx:entries};
-  try{
-    await fetch(c.u,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},
-                     body:JSON.stringify({token:c.t,data:data})});
-    c.lastAt=Date.now(); c.lastCount=entries.length; delete c.hold; abkSave(c); abkShow();
-  }catch(e){}
-}
-if(location.hash.indexOf("#autobk=")===0){
-  const ok=abkApplyCode(location.hash);
-  history.replaceState(null,"",location.pathname+location.search);
-  setTimeout(()=>toast(ok?"自動バックアップを設定しました":"設定コードが正しくありません"),600);
-}
-document.getElementById("abkSet").onclick=()=>{
-  const v=prompt("自動バックアップの設定コードを貼り付けてください"); if(!v) return;
-  if(abkApplyCode(v)){ abkShow(); sendAutoBackup(); toast("自動バックアップを設定しました"); } else toast("設定コードが正しくありません");
-};
 
-boot().then(()=>{ abkShow(); const c=abkCfg(); if(c && Date.now()-(c.lastAt||0) > 20*3600*1000) setTimeout(sendAutoBackup,2000); });
+boot().then(()=>{ bkShow(); });
 </script>
