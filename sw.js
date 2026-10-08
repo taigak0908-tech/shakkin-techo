@@ -1,7 +1,8 @@
-const CACHE = "shakkin-v3";
+const CACHE = "shakkin-v4";
 const ASSETS = [
   "./",
   "./index.html",
+  "./app.js",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
@@ -28,8 +29,11 @@ self.addEventListener("fetch", e => {
   e.respondWith(
     fetch(e.request)
       .then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy));
+        // うまく取れた自分のファイルだけ控えておく（エラーの画面をキャッシュしない）
+        if (res.ok && new URL(e.request.url).origin === location.origin) {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, copy));
+        }
         return res;
       })
       .catch(() => caches.match(e.request).then(r => r || caches.match("./index.html")))
