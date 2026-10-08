@@ -16,7 +16,8 @@ self.addEventListener("install", e => {
 self.addEventListener("activate", e => {
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+      // 同じ github.io には他のアプリも同居しているので、自分の古いキャッシュ（shakkin-）だけ消す
+      Promise.all(keys.filter(k => k.startsWith("shakkin-") && k !== CACHE).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
